@@ -307,7 +307,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#id6">
-   Как можно закодировать данные в VQC
+   Кодирование данных в VQC
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -324,7 +324,7 @@
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#id9">
-   Что мы узнали из этой лекции
+   Что мы узнали из лекции
   </a>
  </li>
 </ul>
@@ -343,37 +343,36 @@
 <span id="id1"></span><h1>Вариационные квантовые схемы<a class="headerlink" href="#vqc" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id2">
 <h2>Описание лекции<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
-<p>На этой лекции мы впервые познакомимся с непосредственно квантовым машинным обучением. Теперь, вместо <code class="docutils literal notranslate"><span class="pre">NumPy</span></code> мы будем использовать <code class="docutils literal notranslate"><span class="pre">PennyLane</span></code>. Лекция включает следующие темы:</p>
+<p>На этой лекции мы впервые познакомимся непосредственно с квантовым машинным обучением. Теперь вместо <code class="docutils literal notranslate"><span class="pre">NumPy</span></code> мы будем использовать <code class="docutils literal notranslate"><span class="pre">PennyLane</span></code>. Лекция расскажет:</p>
 <ul class="simple">
-<li><p>В чем идея квантово-классического обучения?</p></li>
-<li><p>Что такое вариационное машинное обучение?</p></li>
-<li><p>Как устроена вариационная квантовая схема?</p></li>
-<li><p>Как можно закодировать данные в вариационную схему?</p></li>
+<li><p>в чем заключается идея квантово-классического обучения;</p></li>
+<li><p>что такое вариационное машинное обучение;</p></li>
+<li><p>как устроена вариационная квантовая схема и как закодировать в нее данные.</p></li>
 </ul>
 </div>
 <div class="section" id="id3">
 <h2>Введение<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<p>Далее, в течение всего курса, мы будем больше всего говорить о квантово-классическом машинном обучении, которое построено на базе вариационных квантовых схем. Именно этот тип комбинированного, квантово-классического машинного обучения является наиболее перспективным в NISQ-эру. Прежде, чем мы начнем, давайте заглянем немного вперед и посмотрим, как выглядит типичный цикл такого обучения.</p>
+<p>В течение всего курса мы будем говорить преимущественно о комбинированном квантово-классическом машинном обучении, построенном на базе вариационных квантовых схем. Именно он является наиболее перспективным в эпоху NISQ. Давайте забежим немного вперед и посмотрим, как выглядит типичный цикл такого обучения.</p>
 <div class="figure align-default" id="vqcdiag">
 <a class="reference internal image-reference" href="../../_images/diagram1.png"><img alt="../../_images/diagram1.png" src="../../_images/diagram1.png" style="height: 400px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 8 </span><span class="caption-text">Пример цикла смешанного обучения</span><a class="headerlink" href="#vqcdiag" title="Permalink to this image">¶</a></p>
 </div>
-<p>Красным цветом на этой диаграмме помечены блоки, которые выполняются на квантовом устройстве, а зеленым – то, что считается на обычном компьютере. Квантовая часть, которая включает в себя операторы <span class="math notranslate nohighlight">\(\hat{U(X)}\)</span> и <span class="math notranslate nohighlight">\(\hat{U(\theta})\)</span>, а также измерение наблюдаемой <span class="math notranslate nohighlight">\(\hat{M}\)</span> как раз и называется вариационной квантовой схемой, и именно ей мы посвятим сегодняшнее занятие.</p>
-<p>Но сначала нам придется сделать шаг назад и обсудить в общих чертах идеи, которые лежат в основе квантово-классического обучения.</p>
+<p>Красным цветом на диаграмме помечены блоки, выполняемые на квантовом устройстве, зеленым – те, что считает обычный компьютер. Квантовая часть, которая включает в себя операторы <span class="math notranslate nohighlight">\(\hat{U(X)}\)</span> и <span class="math notranslate nohighlight">\(\hat{U(\theta})\)</span>, а также измерение наблюдаемой <span class="math notranslate nohighlight">\(\hat{M}\)</span>, называется вариационной квантовой схемой. Именно ей посвящена данная лекция.</p>
+<p>Но сначала сделаем шаг назад и обсудим в общих чертах идеи, которые лежат в основе квантово-классического обучения.</p>
 </div>
 <div class="section" id="id4">
 <h2>Квантово-классическое обучение<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
-<p>Основная идея, которая лежит в основе квантово-классического обучения заключается в том, что в Noise Intermediate Scale Quantum (<em>NISQ</em>) эпоху у нас нет больших работающих квантовых компьютеров и нет квантовой памяти. Это сильно ограничивает нас в применении алгоритмов, которые дают нам гарантированное ускорение над их классическими аналогами. Практически, все что нам остается – это “встраивать” квантовые схемы в классический цикл обучения.</p>
-<p>В этом случае обычно мы разделяем классическую и квантовую части алгоритма. Мы выполняем предварительную обработку и подготовку данных на классическом компьютере, после чего “прогоняем” их через квантовую схему. Эта схема должна возвращать нам классические данные, а значит, включает в себя набор последовательно применяемых операторов и измерение. В этом случае, со стороны классического компьютера, такая схема будет выглядеть как просто некий “черный ящик” или “оракул”, с которым уже можно работать. Например, можно варьировать параметры схемы таким образом, чтобы она “обучалась” так же, как “обучаются” нейронные сети или другие алгоритмы классического машинного обучения.</p>
-<p>Давайте более детально посмотрим на квантовую схему, которая может быть использована в таком подходе.</p>
+<p>Основная идея квантово-классического обучения заключается в том, что в эпоху Noise Intermediate Scale Quantum (<em>NISQ</em>) у нас нет больших работающих квантовых компьютеров и квантовой памяти. Это сильно ограничивает применение алгоритмов, более быстрых, чем классические. Нам остается только “встраивать” квантовые схемы в классический цикл обучения.</p>
+<p>В этом случае мы разделяем классическую и квантовую части алгоритма. Выполняем предварительную обработку и подготовку данных на классическом компьютере, затем “прогоняем” их через квантовую схему. Она должна возвращать нам “классические” данные, а значит, должна включать в себя набор последовательно применяемых операторов и измерение. Со стороны классического компьютера такая схема выглядит как “черный ящик” или “оракул”, с которым уже можно работать. Например, можно варьировать параметры схемы таким образом, чтобы она “обучалась” так же, как “обучаются” нейронные сети или другие алгоритмы классического машинного обучения.</p>
+<p>Давайте более детально посмотрим на квантовую схему, которую можно использовать в таком подходе.</p>
 </div>
 <div class="section" id="id5">
 <h2>Вариационные квантовые схемы<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
-<p>В основе вариационных квантовых схем, или Variational Quantum Circuits (<strong>VQC</strong>) лежит достаточно простая идея. Давайте сделаем схему, которая включает в себя набор унитарных операторов и переводит классические данные <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> и параметры <span class="math notranslate nohighlight">\(\theta\)</span> в квантовое состояние <span class="math notranslate nohighlight">\(\ket{\Psi}(\theta, \mathbf{X})\)</span>. А дальше, давайте /варьировать/ наше состояние <span class="math notranslate nohighlight">\(\ket{\Psi}\)</span>, меняя параметры <span class="math notranslate nohighlight">\(\theta\)</span> так, чтобы при его измерении в каком-либо базисе мы получали нужный нам результат, например, результат классификации входных данных <span class="math notranslate nohighlight">\(\mathbf{X}\)</span>.</p>
-<p>Давайте разберем это на простом примере.</p>
+<p>В основе вариационных квантовых схем – Variational Quantum Circuits (<strong>VQC</strong>) – лежит простая идея. Чтобы проиллюстрировать ее, давайте сделаем схему, которая включает в себя набор унитарных операторов и переводит классические данные <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> и параметры <span class="math notranslate nohighlight">\(\theta\)</span> в квантовое состояние <span class="math notranslate nohighlight">\(\ket{\Psi}(\theta, \mathbf{X})\)</span>. Затем будем варьировать наше состояние <span class="math notranslate nohighlight">\(\ket{\Psi}\)</span>, меняя параметры <span class="math notranslate nohighlight">\(\theta\)</span> так, чтобы при его измерении в каком-либо базисе мы получали нужный результат, например, результат классификации входных данных <span class="math notranslate nohighlight">\(\mathbf{X}\)</span>.</p>
+<p>Разберем написанное выше на примере.</p>
 <div class="section" id="x">
 <h3>Аппроксимация матрицы Паули <strong>X</strong> оператором поворота<a class="headerlink" href="#x" title="Permalink to this headline">¶</a></h3>
-<p>Как мы помним из предыдущих лекций, оператор <span class="math notranslate nohighlight">\(\hat{\mathbf{X}}\)</span> работает как квантовый аналог оператора =NOT= – он инвертирует значение кубита.</p>
+<p>Из предыдущих лекций мы помним, что оператор <span class="math notranslate nohighlight">\(\hat{\mathbf{X}}\)</span> работает как квантовый аналог оператора =NOT= – инвертирует значение кубита.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pennylane</span> <span class="k">as</span> <span class="nn">qml</span>
@@ -401,9 +400,9 @@
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Тут мы измеряем наш кубит в <span class="math notranslate nohighlight">\(\mathbf{Z}\)</span>-базисе и чаще всего иы будем измерять именно в нем. <span class="math notranslate nohighlight">\(\mathbf{Z}\)</span>-базис является неким “стандартом” для квантовых вычислений, так как это измерение “ближе к железу”.</p>
+<p>Тут мы измеряем наш кубит в <span class="math notranslate nohighlight">\(\mathbf{Z}\)</span>-базисе и чаще всего будем измерять именно в нем. <span class="math notranslate nohighlight">\(\mathbf{Z}\)</span>-базис является неким “стандартом” для квантовых вычислений, так как это измерение “ближе к железу”.</p>
 </div>
-<p>С другой стороны, у нас есть оператор <span class="math notranslate nohighlight">\(\hat{RX}(\phi)\)</span>, который “вращает” состояние нашего кубита вокруг оси <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> на угол <span class="math notranslate nohighlight">\(\phi\)</span>. Давайте сделаем параметризованную схему с одним параметром:</p>
+<p>С другой стороны, у нас есть оператор <span class="math notranslate nohighlight">\(\hat{RX}(\phi)\)</span>, который “вращает” состояние нашего кубита вокруг оси <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> на угол <span class="math notranslate nohighlight">\(\phi\)</span>. Сделаем параметризованную схему с одним параметром:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@qml</span><span class="o">.</span><span class="n">qnode</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
@@ -414,7 +413,7 @@
 </div>
 </div>
 </div>
-<p>Теперь давайте попробуем подобрать <span class="math notranslate nohighlight">\(\phi\)</span> так, чтобы наша параметризованная схема работала точно так же, как оператор <span class="math notranslate nohighlight">\(\hat{X}\)</span>:</p>
+<p>Теперь попробуем подобрать <span class="math notranslate nohighlight">\(\phi\)</span> так, чтобы параметризованная схема работала точно так же, как оператор <span class="math notranslate nohighlight">\(\hat{X}\)</span>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Try 1.0: </span><span class="si">{</span><span class="n">vqc</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -433,21 +432,21 @@ Try 3.14159265359: -1.0
 </div>
 </div>
 </div>
-<p>Мы получили, что нужный нам угол <span class="math notranslate nohighlight">\(\phi\)</span> составляет ровно <span class="math notranslate nohighlight">\(\pi\)</span>. Это логично, и мы могли бы это легко понять из простейших соображений линейной алгебры, либо даже взглянув на сферу Блоха. Но целью этого примера для нас было /почувствовать/ как работают VQC.</p>
-<p>Понятно, что наш процесс “подбора” параметра <span class="math notranslate nohighlight">\(\phi\)</span> крайне примитивный, но следующую лекцию мы полностью посвятим тому, как можно посчитать градиент параметров квантовой схемы и задействовать всю мощь изобретенных на сегодня методов оптимизации. А пока давайте еще раз подумаем о том, как можно закодировать данные в квантовую схему.</p>
+<p>Получается, что нужный нам угол <span class="math notranslate nohighlight">\(\phi\)</span> составляет ровно <span class="math notranslate nohighlight">\(\pi\)</span>. Это логично, мы могли бы это легко понять из простейших соображений линейной алгебры, либо взглянув на сферу Блоха. Но целью этого примера было проиллюстрировать работу VQC.</p>
+<p>Наш процесс “подбора” параметра <span class="math notranslate nohighlight">\(\phi\)</span> крайне примитивный, но следующую лекцию мы полностью посвятим тому, как посчитать градиент параметров квантовой схемы и задействовать всю мощь известных на сегодня методов оптимизации. А пока еще немного подумаем о том, как можно закодировать данные в квантовую схему.</p>
 </div>
 </div>
 <div class="section" id="id6">
-<h2>Как можно закодировать данные в VQC<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
-<p>Как можно было заметить, в конструировании VQC есть две важных части:</p>
+<h2>Кодирование данных в VQC<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>В конструировании VQC есть две важных части:</p>
 <ul class="simple">
-<li><p>Кодирование классических данных в квантовые операторы</p></li>
-<li><p>Выбор наблюдаемой для измерений</p></li>
+<li><p>кодирование классических данных в квантовые операторы;</p></li>
+<li><p>выбор наблюдаемой для измерений.</p></li>
 </ul>
-<p>Давайте посмотрим, как можно закодировать данные в схему.</p>
+<p>Вот как можно закодировать данные.</p>
 <div class="section" id="id7">
 <h3>Кодирование поворотами<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
-<p>Один из самых популярных методов кодирования классических данных в квантовые схемы – это использование операторов поворота <span class="math notranslate nohighlight">\(\hat{RY}, \hat{RZ}\)</span>. Представим, что мы хотим отображать вектор из двухмерного пространства в один кубит <span class="math notranslate nohighlight">\(\vec{x} \in \mathbb{R}^2 \to \mathbb{C}^2\)</span>.</p>
+<p>Один из самых популярных методов кодирования классических данных в квантовые схемы – это использование операторов поворота <span class="math notranslate nohighlight">\(\hat{RY}, \hat{RZ}\)</span>. Представим, что мы хотим отображать вектор из двумерного пространства в один кубит <span class="math notranslate nohighlight">\(\vec{x} \in \mathbb{R}^2 \to \mathbb{C}^2\)</span>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@qml</span><span class="o">.</span><span class="n">qnode</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
@@ -460,7 +459,7 @@ Try 3.14159265359: -1.0
 </div>
 </div>
 </div>
-<p>А теперь давайте посмотрим, как такая схема преобразует данные. Для этого сгенерируем набор случайных двухмерных данных в диапазоне <span class="math notranslate nohighlight">\([0, 2\pi]\)</span> и применим к каждой точке нашу схему, после чего визуализируем результаты:</p>
+<p>А теперь давайте посмотрим, как такая схема преобразует данные. Для этого сгенерируем набор случайных двумерных данных в диапазоне <span class="math notranslate nohighlight">\([0, 2\pi]\)</span> и применим к каждой точке нашей схемы, затем визуализируем результаты:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -485,7 +484,7 @@ Try 3.14159265359: -1.0
 <img alt="../../_images/vqc_9_0.png" src="../../_images/vqc_9_0.png" />
 </div>
 </div>
-<p>Результат довольно необычный – предсказать такое довольно сложно и хорошо видна возможность нелинейности <code class="docutils literal notranslate"><span class="pre">VQC</span></code> схем. В дальнейших лекциях мы будем более подробно разбирать возможные варианты кодирования данных. Кстати, кодирование углами настолько популярно, что в <code class="docutils literal notranslate"><span class="pre">PennyLane</span></code> для этого есть специальная функция, которая позволяет “повернуть” сразу множество кубитов, используя список из классических данных:</p>
+<p>Результат довольно необычный. Предсказать такое довольно сложно и хорошо видна возможность нелинейности <code class="docutils literal notranslate"><span class="pre">VQC</span></code> схем. В дальнейших лекциях мы будем более подробно разбирать возможные варианты кодирования данных. Кстати, кодирование углами настолько популярно, что в <code class="docutils literal notranslate"><span class="pre">PennyLane</span></code> для этого есть специальная функция, которая позволяет “повернуть” сразу множество кубитов, используя список из классических данных:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@qml</span><span class="o">.</span><span class="n">qnode</span><span class="p">(</span><span class="n">dev</span><span class="p">)</span>
@@ -514,7 +513,7 @@ Try 3.14159265359: -1.0
 </div>
 <div class="section" id="id8">
 <h3>Важность многокубитных гейтов<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
-<p>Очень хорошая идея при кодировании параметров – использовать многокубитные гейты, так как именно они создают запутанные состояния и раскрывают все преимущества квантовых компьютеров! Давайте попробуем это сделать.</p>
+<p>При кодировании параметров целесообразно использовать многокубитные гейты, так как именно они создают запутанные состояния и раскрывают все преимущества квантовых компьютеров. Давайте попробуем это сделать.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dev2</span> <span class="o">=</span> <span class="n">qml</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;default.qubit&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
@@ -531,7 +530,7 @@ Try 3.14159265359: -1.0
 </div>
 </div>
 </div>
-<p>В этой схеме мы видим оператор <span class="math notranslate nohighlight">\(\hat{CZ}\)</span>, который как раз и создает нам запутанное состояние. Давайте посмотрим, как такая схема преобразует наше исходное пространство случайных точек.</p>
+<p>В этой схеме мы видим оператор <span class="math notranslate nohighlight">\(\hat{CZ}\)</span>, который создает запутанное состояние. Посмотрим, как такая схема преобразует наше исходное пространство случайных точек.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="n">cnot_vqc</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">aa</span><span class="p">,</span> <span class="n">bb</span><span class="p">)]</span>
@@ -550,23 +549,21 @@ Try 3.14159265359: -1.0
 <img alt="../../_images/vqc_17_0.png" src="../../_images/vqc_17_0.png" />
 </div>
 </div>
-<p>Можно заметить, что результат выглядит гораздо интереснее. В целом можно сказать, что кодирование данных является одним из важнейших выборов при проектировании <strong>VQC</strong>, и мы еще много будем обсуждать различные способы того, как это можно сделать.</p>
+<p>Результат выглядит гораздо интереснее. В целом можно сказать, что выбор способа кодирования данных – один из важнейших при проектировании <strong>VQC</strong>. Мы еще много раз будем обсуждать способы сделать это.</p>
 </div>
 </div>
 <div class="section" id="id9">
-<h2>Что мы узнали из этой лекции<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
-<p>Давайте кратко повторим, что мы узнали из этой лекции:</p>
+<h2>Что мы узнали из лекции<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>В NISQ эпоху мы чаще всего ограничены комбинированием квантового и классического машинного обучения</p></li>
-<li><p>Ключевой элемент такого обучения – вариационные квантовые схемы (VQC)</p></li>
-<li><p>Основная идея VQC:</p>
+<li><p>В эпоху NISQ эпоху мы чаще всего ограничены комбинированием квантового и классического машинного обучения.</p></li>
+<li><p>Ключевой элемент такого обучения – вариационные квантовые схемы (VQC). Основная идея VQC:</p>
 <ul>
-<li><p>Кодируем классические данные в квантовые операторы</p></li>
-<li><p>Измеряем состояние</p></li>
-<li><p>Варьируем параметры на классическом компьютере так, чтобы измерение давало желаемый результат</p></li>
+<li><p>кодируем классические данные в квантовые операторы;</p></li>
+<li><p>измеряем состояние;</p></li>
+<li><p>варьируем параметры на классическом компьютере так, чтобы измерение давало желаемый результат.</p></li>
 </ul>
 </li>
-<li><p>Один из широко применимых методов кодирования – это использование операторов вращений <span class="math notranslate nohighlight">\(\hat{RX}, \hat{RY}, \hat{RZ}\)</span></p></li>
+<li><p>Один из широко применимых методов кодирования – использование операторов вращений <span class="math notranslate nohighlight">\(\hat{RX}, \hat{RY}, \hat{RZ}\)</span></p></li>
 </ul>
 </div>
 </div>
