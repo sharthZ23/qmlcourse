@@ -183,6 +183,11 @@
    Благодарности
   </a>
  </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../glossary.html">
+   Глоссарий
+  </a>
+ </li>
 </ul>
 
 </nav> <!-- To handle the deprecated key -->
@@ -296,7 +301,10 @@
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#x">
-     Аппроксимация матрицы Паули
+     Аппроксимация
+     <span class="xref std std-term">
+      матрицы Паули
+     </span>
      <strong>
       X
      </strong>
@@ -352,7 +360,7 @@
 </div>
 <div class="section" id="id3">
 <h2>Введение<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<p>В течение всего курса мы будем говорить преимущественно о комбинированном квантово-классическом машинном обучении, построенном на базе вариационных квантовых схем. Именно он является наиболее перспективным в эпоху NISQ. Давайте забежим немного вперед и посмотрим, как выглядит типичный цикл такого обучения.</p>
+<p>В течение всего курса мы будем говорить преимущественно о комбинированном квантово-классическом машинном обучении, построенном на базе вариационных квантовых схем. Именно он является наиболее перспективным в эпоху <span class="xref std std-term">NISQ</span>. Давайте забежим немного вперед и посмотрим, как выглядит типичный цикл такого обучения.</p>
 <div class="figure align-default" id="vqcdiag">
 <a class="reference internal image-reference" href="../../_images/diagram1.png"><img alt="../../_images/diagram1.png" src="../../_images/diagram1.png" style="height: 400px;" /></a>
 <p class="caption"><span class="caption-number">Fig. 8 </span><span class="caption-text">Пример цикла смешанного обучения</span><a class="headerlink" href="#vqcdiag" title="Permalink to this image">¶</a></p>
@@ -371,7 +379,7 @@
 <p>В основе вариационных квантовых схем – Variational Quantum Circuits (<strong>VQC</strong>) – лежит простая идея. Чтобы проиллюстрировать ее, давайте сделаем схему, которая включает в себя набор унитарных операторов и переводит классические данные <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> и параметры <span class="math notranslate nohighlight">\(\theta\)</span> в квантовое состояние <span class="math notranslate nohighlight">\(\ket{\Psi}(\theta, \mathbf{X})\)</span>. Затем будем варьировать наше состояние <span class="math notranslate nohighlight">\(\ket{\Psi}\)</span>, меняя параметры <span class="math notranslate nohighlight">\(\theta\)</span> так, чтобы при его измерении в каком-либо базисе мы получали нужный результат, например, результат классификации входных данных <span class="math notranslate nohighlight">\(\mathbf{X}\)</span>.</p>
 <p>Разберем написанное выше на примере.</p>
 <div class="section" id="x">
-<h3>Аппроксимация матрицы Паули <strong>X</strong> оператором поворота<a class="headerlink" href="#x" title="Permalink to this headline">¶</a></h3>
+<h3>Аппроксимация <a class="reference internal" href="../glossary.html#term-22"><span class="xref std std-term">матрицы Паули</span></a> <strong>X</strong> оператором поворота<a class="headerlink" href="#x" title="Permalink to this headline">¶</a></h3>
 <p>Из предыдущих лекций мы помним, что оператор <span class="math notranslate nohighlight">\(\hat{\mathbf{X}}\)</span> работает как квантовый аналог оператора =NOT= – инвертирует значение кубита.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
